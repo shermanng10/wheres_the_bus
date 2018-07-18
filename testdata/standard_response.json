@@ -1,0 +1,186 @@
+{
+    "Siri": {
+        "ServiceDelivery": {
+            "ResponseTimestamp": "2018-07-15T16:37:26.277-04:00",
+            "StopMonitoringDelivery": [
+                {
+                    "MonitoredStopVisit": [
+                        {
+                            "MonitoredVehicleJourney": {
+                                "PublishedLineName": [
+                                    "Q59"
+                                ],
+                                "DestinationName": [
+                                    "REGO PARK 63 DR via GRAND"
+                                ],
+                                "SituationRef": [],
+                                "Monitored": true,
+                                "VehicleLocation": {
+                                    "Longitude": -73.895059,
+                                    "Latitude": 40.726072
+                                },
+                                "Bearing": 30.718904,
+                                "VehicleRef": "MTA NYCT_4427",
+                                "MonitoredCall": {
+                                    "ExpectedArrivalTime": "2018-07-15T16:37:27.277-04:00",
+                                    "ArrivalProximityText": "1 stop away",
+                                    "ExpectedDepartureTime": "2018-07-15T16:37:27.277-04:00",
+                                    "DistanceFromStop": 309,
+                                    "NumberOfStopsAway": 1,
+                                    "VisitNumber": 1
+                                }
+                            },
+                            "RecordedAtTime": "2018-07-15T16:35:22.586-04:00"
+                        },
+                        {
+                            "MonitoredVehicleJourney": {
+                                "PublishedLineName": [
+                                    "Q58"
+                                ],
+                                "DestinationName": [
+                                    "FLUSHING MAIN ST"
+                                ],
+                                "SituationRef": [
+                                    {
+                                        "SituationSimpleRef": "MTABC_147045"
+                                    }
+                                ],
+                                "Monitored": true,
+                                "VehicleLocation": {
+                                    "Longitude": -73.900586,
+                                    "Latitude": 40.712656
+                                },
+                                "Bearing": 117.181114,
+                                "VehicleRef": "MTA NYCT_4063",
+                                "MonitoredCall": {
+                                    "ExpectedArrivalTime": "2018-07-15T16:47:34.135-04:00",
+                                    "ArrivalProximityText": "1.3 miles away",
+                                    "ExpectedDepartureTime": "2018-07-15T16:47:34.135-04:00",
+                                    "DistanceFromStop": 2170,
+                                    "NumberOfStopsAway": 9,
+                                    "VisitNumber": 1
+                                }
+                            },
+                            "RecordedAtTime": "2018-07-15T16:36:58.999-04:00"
+                        },
+                        {
+                            "MonitoredVehicleJourney": {
+                                "PublishedLineName": [
+                                    "Q59"
+                                ],
+                                "DestinationName": [
+                                    "REGO PARK 63 DR via GRAND"
+                                ],
+                                "SituationRef": [],
+                                "Monitored": true,
+                                "VehicleLocation": {
+                                    "Longitude": -73.924348,
+                                    "Latitude": 40.716074
+                                },
+                                "Bearing": 14.659317,
+                                "VehicleRef": "MTA NYCT_4553",
+                                "MonitoredCall": {
+                                    "ExpectedArrivalTime": "2018-07-15T16:47:19.457-04:00",
+                                    "ArrivalProximityText": "1.9 miles away",
+                                    "ExpectedDepartureTime": "2018-07-15T16:47:19.457-04:00",
+                                    "DistanceFromStop": 3052,
+                                    "NumberOfStopsAway": 13,
+                                    "VisitNumber": 1
+                                }
+                            },
+                            "RecordedAtTime": "2018-07-15T16:37:09.000-04:00"
+                        }
+                    ],
+                    "ResponseTimestamp": "2018-07-15T16:37:26.277-04:00",
+                    "ValidUntil": "2018-07-15T16:38:26.277-04:00"
+                }
+            ],
+            "SituationExchangeDelivery": [
+                {
+                    "Situations": {
+                        "PtSituationElement": [
+                            {
+                                "PublicationWindow": {
+                                    "StartTime": "2017-02-03T00:00:00.000-05:00",
+                                    "EndTime": "2019-01-31T23:59:00.000-05:00"
+                                },
+                                "Severity": "undefined",
+                                "Summary": [
+                                    "Until further notice  Daily, 6 AM to 10 PM<br clearleft>Q38, Q39, Q54, Q58/Q58"
+                                ],
+                                "Description": [
+                                    "Until further notice | Daily, 6 AM to 10 PMQ38, Q39, Q54, Q58/Q58 LTD and Q67 buses may experience delaysdue to construction on Metropolitan Av at Fresh Pond Rd"
+                                ],
+                                "Affects": {
+                                    "VehicleJourneys": {
+                                        "AffectedVehicleJourney": [
+                                            {
+                                                "LineRef": "MTABC_Q38",
+                                                "DirectionRef": "0"
+                                            },
+                                            {
+                                                "LineRef": "MTABC_Q38",
+                                                "DirectionRef": "1"
+                                            },
+                                            {
+                                                "LineRef": "MTABC_Q39",
+                                                "DirectionRef": "0"
+                                            },
+                                            {
+                                                "LineRef": "MTABC_Q39",
+                                                "DirectionRef": "1"
+                                            },
+                                            {
+                                                "LineRef": "MTA NYCT_Q54",
+                                                "DirectionRef": "0"
+                                            },
+                                            {
+                                                "LineRef": "MTA NYCT_Q54",
+                                                "DirectionRef": "1"
+                                            },
+                                            {
+                                                "LineRef": "MTA NYCT_Q58",
+                                                "DirectionRef": "0"
+                                            },
+                                            {
+                                                "LineRef": "MTA NYCT_Q58",
+                                                "DirectionRef": "0"
+                                            },
+                                            {
+                                                "LineRef": "MTA NYCT_Q58",
+                                                "DirectionRef": "1"
+                                            },
+                                            {
+                                                "LineRef": "MTA NYCT_Q58",
+                                                "DirectionRef": "1"
+                                            },
+                                            {
+                                                "LineRef": "MTABC_Q67",
+                                                "DirectionRef": "0"
+                                            },
+                                            {
+                                                "LineRef": "MTABC_Q67",
+                                                "DirectionRef": "1"
+                                            }
+                                        ]
+                                    }
+                                },
+                                "Consequences": {
+                                    "Consequence": [
+                                        {
+                                            "Condition": [
+                                                "altered"
+                                            ]
+                                        }
+                                    ]
+                                },
+                                "CreationTime": "2017-02-03T00:00:00.000-05:00",
+                                "SituationNumber": "MTABC_147045"
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    }
+}
