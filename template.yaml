@@ -25,10 +25,10 @@ Resources:
             Method: GET
 
 Outputs:
-  HelloWorldAPI:
+  WhereDaBusAPI:
     Description: "API Gateway endpoint URL for Prod environment for First Function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/where_da_bus/"
 
-  HelloWorldFunction:
+  WhereDaBusFunction:
     Description: "Lambda Function ARN"
     Value: !GetAtt WhereDaBusFunction.Arn

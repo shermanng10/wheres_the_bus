@@ -13,7 +13,7 @@ import (
 )
 
 type BusLocationService interface {
-	GetBusTimesByStopCode(string) []BusTime
+	GetBusTimesByStopCode(string) ([]BusTime, error)
 }
 
 type BusTime struct {
@@ -55,16 +55,7 @@ func (api *MTABusStopMonitoringAPI) SetBaseUrl(url string) {
 }
 
 func (api *MTABusStopMonitoringAPI) GetBusTimesByStopCode(code string) ([]BusTime, error) {
-	const stopsVisitJsonPath = "Siri.ServiceDelivery.StopMonitoringDelivery.0.MonitoredStopVisit"
-	// All constant paths that follow are nested within stopsVisitJsonPath so that we don't have to re-parse
-	// the entire object multiple times.
-	const busNameJsonPath = "MonitoredVehicleJourney.PublishedLineName"
-	const arrivalTimeJsonPath = "MonitoredVehicleJourney.MonitoredCall.ExpectedArrivalTime"
-	const departureTimeJsonPath = "MonitoredVehicleJourney.MonitoredCall.ExpectedArrivalTime"
-	const distanceJsonPath = "MonitoredVehicleJourney.MonitoredCall.ArrivalProximityText"
-	var busTimes []BusTime
-
-	endpoint := api.MakeStopMonitoringEndpoint(code, "3")
+	endpoint := api.makeStopMonitoringEndpoint(code)
 	resp, err := api.HttpClient.Get(endpoint)
 	defer resp.Body.Close()
 	if err != nil {
@@ -76,11 +67,41 @@ func (api *MTABusStopMonitoringAPI) GetBusTimesByStopCode(code string) ([]BusTim
 		return nil, err
 	}
 
-	stops := gjson.GetBytes(body, stopsVisitJsonPath)
+	return api.responseToBusTimes(body, code), nil
+}
+
+func (api *MTABusStopMonitoringAPI) makeStopMonitoringEndpoint(stopCode string) string {
+	const detailLevel = "minimum"
+	const operatorRef = "MTA"
+	const apiVersion = "2"
+	const maxStopResults = "3"
+
+	form := url.Values{}
+	form.Set("key", os.Getenv("MTA_STOP_MONITORING_API_KEY"))
+	form.Set("version", apiVersion)
+	form.Set("OperatorRef", operatorRef)
+	form.Set("MonitoringRef", stopCode)
+	form.Set("StopMonitoringDetailLevel", detailLevel)
+	form.Set("MaximumStopVisits", maxStopResults)
+	qs := form.Encode()
+	return api.baseUrl + "?" + qs
+}
+
+func (api *MTABusStopMonitoringAPI) responseToBusTimes(resp []byte, stopCode string) []BusTime {
+	const stopsVisitJsonPath = "Siri.ServiceDelivery.StopMonitoringDelivery.0.MonitoredStopVisit"
+	// All constant paths that follow are nested within stopsVisitJsonPath so that we don't have to re-parse
+	// the entire object multiple times.
+	const busNameJsonPath = "MonitoredVehicleJourney.PublishedLineName"
+	const arrivalTimeJsonPath = "MonitoredVehicleJourney.MonitoredCall.ExpectedArrivalTime"
+	const departureTimeJsonPath = "MonitoredVehicleJourney.MonitoredCall.ExpectedArrivalTime"
+	const distanceJsonPath = "MonitoredVehicleJourney.MonitoredCall.ArrivalProximityText"
+	var busTimes []BusTime
+
+	stops := gjson.GetBytes(resp, stopsVisitJsonPath)
 	for _, stop := range stops.Array() {
 		stopJson := stop.String()
 		busTimes = append(busTimes, BusTime{
-			Stop:          code,
+			Stop:          stopCode,
 			ArrivalTime:   gjson.Get(stopJson, arrivalTimeJsonPath).Time(),
 			DepartureTime: gjson.Get(stopJson, departureTimeJsonPath).Time(),
 			Distance:      gjson.Get(stopJson, distanceJsonPath).String(),
@@ -88,17 +109,5 @@ func (api *MTABusStopMonitoringAPI) GetBusTimesByStopCode(code string) ([]BusTim
 		})
 	}
 
-	return busTimes, nil
-}
-
-func (api *MTABusStopMonitoringAPI) MakeStopMonitoringEndpoint(stopCode string, maxStopResults string) string {
-	form := url.Values{}
-	form.Set("key", os.Getenv("MTA_STOP_MONITORING_API_KEY"))
-	form.Set("version", "2")
-	form.Set("OperatorRef", "MTA")
-	form.Set("MonitoringRef", stopCode)
-	form.Set("StopMonitoringDetailLevel", "minimum")
-	form.Set("MaximumStopVisits", maxStopResults)
-	qs := form.Encode()
-	return api.baseUrl + "?" + qs
+	return busTimes
 }
