@@ -17,18 +17,18 @@ func fixture(path string) string {
 
 func TestGetBusTimesByStopCode(t *testing.T) {
 	t.Run("Test Handles Expected Valid Data", func(t *testing.T) {
-		mockResponse := fixture("standard_response.json")
+		stubResponse := fixture("standard_response.json")
 
-		var mockHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var stubHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(mockResponse))
+			w.Write([]byte(stubResponse))
 		})
 
-		var mockServer = httptest.NewServer(mockHandler)
-		defer mockServer.Close()
+		var stubServer = httptest.NewServer(stubHandler)
+		defer stubServer.Close()
 
 		api := NewMTAStopMonitoringAPI(&http.Client{})
-		api.SetBaseUrl(mockServer.URL)
+		api.SetBaseUrl(stubServer.URL)
 
 		busTimes, err := api.GetBusTimesByStopCode("503471")
 		if err != nil {
@@ -55,18 +55,18 @@ func TestGetBusTimesByStopCode(t *testing.T) {
 	})
 
 	t.Run("Test Is Not Catastrophic On Broken Data (Bad JSON Keys or Structure)", func(t *testing.T) {
-		mockResponse := fixture("bad_response_with_wonky_keys.json")
+		stubResponse := fixture("bad_response_with_wonky_keys.json")
 
-		var mockHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var stubHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(mockResponse))
+			w.Write([]byte(stubResponse))
 		})
 
-		var mockServer = httptest.NewServer(mockHandler)
-		defer mockServer.Close()
+		var stubServer = httptest.NewServer(stubHandler)
+		defer stubServer.Close()
 
 		api := NewMTAStopMonitoringAPI(&http.Client{})
-		api.SetBaseUrl(mockServer.URL)
+		api.SetBaseUrl(stubServer.URL)
 
 		busTimes, err := api.GetBusTimesByStopCode("503471")
 		if err != nil {
