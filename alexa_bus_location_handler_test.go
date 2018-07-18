@@ -10,11 +10,12 @@ import (
 func TestBusLocationHandler(t *testing.T) {
 	t.Run("Test Gets Expected Response (No Bus Times)", func(t *testing.T) {
 		mockCtrl := gomock.NewController(t)
+		defer mockCtrl.Finish()
 		mockBusService := NewMockBusLocationService(mockCtrl)
 		mockBusService.EXPECT().GetBusTimesByStopCode("503471").Return([]BusTime{}, nil).Times(1)
 
 		busHandler := NewAlexaBusLocationHandler(mockBusService)
-		resp, err := busHandler.GetBusTimes("503471")
+		resp, err := busHandler.GetBusTimes(nil, AlexaRequest{})
 		if err != nil {
 			t.Errorf("Did not expect an error, got %v", err)
 		}
@@ -24,16 +25,11 @@ func TestBusLocationHandler(t *testing.T) {
 		if actualOutputSpeechText != expectedOutputSpeechText {
 			t.Errorf("Expected %v, got: %v", expectedOutputSpeechText, actualOutputSpeechText)
 		}
-
-		expectedOutputSpeechType := "PlainText"
-		actualOutputSpeechType := resp.Response.OutputSpeech.Type
-		if actualOutputSpeechType != expectedOutputSpeechType {
-			t.Errorf("Expected %v, got: %v", expectedOutputSpeechType, actualOutputSpeechType)
-		}
 	})
 
 	t.Run("Test Gets Expected Response (1 Bus Time)", func(t *testing.T) {
 		mockCtrl := gomock.NewController(t)
+		defer mockCtrl.Finish()
 		mockBusService := NewMockBusLocationService(mockCtrl)
 		mockBusService.EXPECT().GetBusTimesByStopCode("503471").Return([]BusTime{
 			{
@@ -46,7 +42,7 @@ func TestBusLocationHandler(t *testing.T) {
 		}, nil).Times(1)
 
 		busHandler := NewAlexaBusLocationHandler(mockBusService)
-		resp, err := busHandler.GetBusTimes("503471")
+		resp, err := busHandler.GetBusTimes(nil, AlexaRequest{})
 		if err != nil {
 			t.Errorf("Did not expect an error, got %v", err)
 		}
@@ -56,16 +52,11 @@ func TestBusLocationHandler(t *testing.T) {
 		if actualOutputSpeechText != expectedOutputSpeechText {
 			t.Errorf("Expected %v, got: %v", expectedOutputSpeechText, actualOutputSpeechText)
 		}
-
-		expectedOutputSpeechType := "PlainText"
-		actualOutputSpeechType := resp.Response.OutputSpeech.Type
-		if actualOutputSpeechType != expectedOutputSpeechType {
-			t.Errorf("Expected %v, got: %v", expectedOutputSpeechType, actualOutputSpeechType)
-		}
 	})
 
 	t.Run("Test Gets Expected Response (More Than One Bus Time)", func(t *testing.T) {
 		mockCtrl := gomock.NewController(t)
+		defer mockCtrl.Finish()
 		mockBusService := NewMockBusLocationService(mockCtrl)
 		mockBusService.EXPECT().GetBusTimesByStopCode("503471").Return([]BusTime{
 			{
@@ -92,7 +83,7 @@ func TestBusLocationHandler(t *testing.T) {
 		}, nil).Times(1)
 
 		busHandler := NewAlexaBusLocationHandler(mockBusService)
-		resp, err := busHandler.GetBusTimes("503471")
+		resp, err := busHandler.GetBusTimes(nil, AlexaRequest{})
 		if err != nil {
 			t.Errorf("Did not expect an error, got %v", err)
 		}
@@ -101,12 +92,6 @@ func TestBusLocationHandler(t *testing.T) {
 		actualOutputSpeechText := resp.Response.OutputSpeech.Text
 		if actualOutputSpeechText != expectedOutputSpeechText {
 			t.Errorf("Expected %v, got: %v", expectedOutputSpeechText, actualOutputSpeechText)
-		}
-
-		expectedOutputSpeechType := "PlainText"
-		actualOutputSpeechType := resp.Response.OutputSpeech.Type
-		if actualOutputSpeechType != expectedOutputSpeechType {
-			t.Errorf("Expected %v, got: %v", expectedOutputSpeechType, actualOutputSpeechType)
 		}
 	})
 }

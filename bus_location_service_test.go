@@ -46,11 +46,6 @@ func TestGetBusTimesByStopCode(t *testing.T) {
 			if busTime.Stop != expectedStopCode {
 				t.Errorf("Expected %v bus code, got: %v", expectedStopCode, busTime.Stop)
 			}
-
-			err := busTime.Validate()
-			if err != nil {
-				t.Errorf("Did not expect an error, got: %v", err)
-			}
 		}
 	})
 

@@ -1,13 +1,17 @@
 package main
 
 import (
+	"context"
 	"fmt"
-
 	"strings"
 )
 
 type BusLocationHandler interface {
-	GetBusTimes(string) (AlexaTextResponse, error)
+	GetBusTimes(context.Context, AlexaRequest) (AlexaTextResponse, error)
+}
+
+func AlexaBusLocationHandlerFactory() *AlexaBusLocationHandler {
+	return NewAlexaBusLocationHandler(MTAStopMonitoringAPIFactory())
 }
 
 func NewAlexaBusLocationHandler(busService BusLocationService) *AlexaBusLocationHandler {
@@ -20,7 +24,8 @@ type AlexaBusLocationHandler struct {
 	busService BusLocationService
 }
 
-func (h *AlexaBusLocationHandler) GetBusTimes(stopCode string) (AlexaTextResponse, error) {
+func (h *AlexaBusLocationHandler) GetBusTimes(ctx context.Context, r AlexaRequest) (AlexaTextResponse, error) {
+	stopCode := "503471" // Hard coded to my stop for now.
 	busTimes, err := h.busService.GetBusTimesByStopCode(stopCode)
 	if err != nil {
 		return NewAlexaTextResponse("Something went wrong with your request."), err

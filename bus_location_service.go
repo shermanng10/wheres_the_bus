@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -16,25 +15,12 @@ type BusLocationService interface {
 	GetBusTimesByStopCode(string) ([]BusTime, error)
 }
 
-type BusTime struct {
-	Stop          string
-	ArrivalTime   time.Time
-	DepartureTime time.Time
-	Distance      string
-	BusName       string
-}
-
-func (bt *BusTime) Validate() error {
-	if bt.Stop == "" {
-		return errors.New("Bus time stop must not be empty")
+func MTAStopMonitoringAPIFactory() *MTABusStopMonitoringAPI {
+	const defaultTimeOut = time.Second * 15
+	defaultHttpClient := &http.Client{
+		Timeout: defaultTimeOut,
 	}
-	if bt.Distance == "" {
-		return errors.New("Bus time distance must not be empty")
-	}
-	if bt.BusName == "" {
-		return errors.New("Bus time name must not be empty")
-	}
-	return nil
+	return NewMTAStopMonitoringAPI(defaultHttpClient)
 }
 
 func NewMTAStopMonitoringAPI(httpClient *http.Client) *MTABusStopMonitoringAPI {
@@ -48,6 +34,14 @@ func NewMTAStopMonitoringAPI(httpClient *http.Client) *MTABusStopMonitoringAPI {
 type MTABusStopMonitoringAPI struct {
 	baseUrl    string
 	HttpClient *http.Client
+}
+
+type BusTime struct {
+	Stop          string
+	ArrivalTime   time.Time
+	DepartureTime time.Time
+	Distance      string
+	BusName       string
 }
 
 func (api *MTABusStopMonitoringAPI) SetBaseUrl(url string) {
@@ -95,8 +89,8 @@ func (api *MTABusStopMonitoringAPI) responseToBusTimes(resp []byte, stopCode str
 	const arrivalTimeJsonPath = "MonitoredVehicleJourney.MonitoredCall.ExpectedArrivalTime"
 	const departureTimeJsonPath = "MonitoredVehicleJourney.MonitoredCall.ExpectedArrivalTime"
 	const distanceJsonPath = "MonitoredVehicleJourney.MonitoredCall.ArrivalProximityText"
-	var busTimes []BusTime
 
+	var busTimes []BusTime
 	stops := gjson.GetBytes(resp, stopsVisitJsonPath)
 	for _, stop := range stops.Array() {
 		stopJson := stop.String()
