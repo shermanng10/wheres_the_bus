@@ -13,7 +13,7 @@ func TestBusLocationHandler(t *testing.T) {
 		mockBusService := NewMockBusLocationService(mockCtrl)
 		mockBusService.EXPECT().GetBusTimesByStopCode("503471").Return([]BusTime{}, nil).Times(1)
 
-		busHandler := NewBusLocationHandler(mockBusService)
+		busHandler := NewAlexaBusLocationHandler(mockBusService)
 		resp, err := busHandler.GetBusTimes("503471")
 		if err != nil {
 			t.Errorf("Did not expect an error, got %v", err)
@@ -45,7 +45,7 @@ func TestBusLocationHandler(t *testing.T) {
 			},
 		}, nil).Times(1)
 
-		busHandler := NewBusLocationHandler(mockBusService)
+		busHandler := NewAlexaBusLocationHandler(mockBusService)
 		resp, err := busHandler.GetBusTimes("503471")
 		if err != nil {
 			t.Errorf("Did not expect an error, got %v", err)
@@ -91,7 +91,7 @@ func TestBusLocationHandler(t *testing.T) {
 			},
 		}, nil).Times(1)
 
-		busHandler := NewBusLocationHandler(mockBusService)
+		busHandler := NewAlexaBusLocationHandler(mockBusService)
 		resp, err := busHandler.GetBusTimes("503471")
 		if err != nil {
 			t.Errorf("Did not expect an error, got %v", err)

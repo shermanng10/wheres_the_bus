@@ -6,21 +6,21 @@ import (
 	"strings"
 )
 
-type AlexaBusLocationHandler interface {
+type BusLocationHandler interface {
 	GetBusTimes(string) (AlexaTextResponse, error)
 }
 
-func NewBusLocationHandler(busService BusLocationService) *BusLocationHandler {
-	return &BusLocationHandler{
+func NewAlexaBusLocationHandler(busService BusLocationService) *AlexaBusLocationHandler {
+	return &AlexaBusLocationHandler{
 		busService: busService,
 	}
 }
 
-type BusLocationHandler struct {
+type AlexaBusLocationHandler struct {
 	busService BusLocationService
 }
 
-func (h *BusLocationHandler) GetBusTimes(stopCode string) (AlexaTextResponse, error) {
+func (h *AlexaBusLocationHandler) GetBusTimes(stopCode string) (AlexaTextResponse, error) {
 	busTimes, err := h.busService.GetBusTimesByStopCode(stopCode)
 	if err != nil {
 		return NewAlexaTextResponse("Something went wrong with your request."), err
@@ -29,7 +29,7 @@ func (h *BusLocationHandler) GetBusTimes(stopCode string) (AlexaTextResponse, er
 	return h.makeBusTimesResponse(busTimes), nil
 }
 
-func (h *BusLocationHandler) makeBusTimesResponse(busTimes []BusTime) AlexaTextResponse {
+func (h *AlexaBusLocationHandler) makeBusTimesResponse(busTimes []BusTime) AlexaTextResponse {
 	var outputMessage string
 	numTimes := len(busTimes)
 
