@@ -56,7 +56,8 @@ func (h *AlexaBusLocationHandler) makeBusTimesResponse(busTimes []BusTime) Alexa
 	var busMessageStrings []string
 	for _, busTime := range busTimes {
 		var message string
-		// If the bus is zero minutes away we want to use the mile distance so it sounds better.
+		// If the bus is zero minutes away we want to use the mile distance so it sounds better, other wise we
+		// use the minute distance because it is more accurate.
 		if busTime.MinsAway == 0 {
 			message = fmt.Sprintf(" the %v which is %v", busTime.BusName, busTime.Distance)
 		} else {

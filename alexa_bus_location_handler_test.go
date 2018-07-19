@@ -1,169 +1,161 @@
 package main
 
 import (
+	"context"
 	"testing"
 	"time"
 
 	"github.com/golang/mock/gomock"
 )
 
-func TestBusLocationHandler(t *testing.T) {
-	t.Run("Test Gets Expected Response (No Bus Times)", func(t *testing.T) {
-		mockCtrl := gomock.NewController(t)
-		defer mockCtrl.Finish()
-		mockBusService := NewMockBusLocationService(mockCtrl)
-		mockBusService.EXPECT().GetBusTimesByStopCode("503471").Return([]BusTime{}, nil).Times(1)
+func TestBusLocationHandlerGetBusTimes(t *testing.T) {
+	testTable := []struct {
+		testName                 string
+		mockBusStopCode          string
+		mockResponse             []BusTime
+		mockError                error
+		expectedOutputSpeechText string
+		alexaRequest             AlexaRequest
+		alexaContext             context.Context
+	}{
 
-		busHandler := NewAlexaBusLocationHandler(mockBusService)
-		resp, err := busHandler.GetBusTimes(nil, AlexaRequest{})
-		if err != nil {
-			t.Errorf("Did not expect an error, got %v", err)
-		}
+		{
+			testName:                 "Gets Expected Response (No Bus Times)",
+			mockBusStopCode:          "503471",
+			mockResponse:             []BusTime{},
+			mockError:                nil,
+			expectedOutputSpeechText: "There are no buses arriving at the stop.",
+			alexaRequest:             AlexaRequest{},
+			alexaContext:             nil,
+		},
 
-		expectedOutputSpeechText := "There are no buses arriving at the stop."
-		actualOutputSpeechText := resp.Response.OutputSpeech.Text
-		if actualOutputSpeechText != expectedOutputSpeechText {
-			t.Errorf("Expected %v, got: %v", expectedOutputSpeechText, actualOutputSpeechText)
-		}
-	})
-
-	t.Run("Test Gets Expected Response (1 Bus Time) When Arrival Time is 0 Mins Away", func(t *testing.T) {
-		mockCtrl := gomock.NewController(t)
-		defer mockCtrl.Finish()
-		mockBusService := NewMockBusLocationService(mockCtrl)
-		mockBusService.EXPECT().GetBusTimesByStopCode("503471").Return([]BusTime{
-			{
-				Stop:          "503471",
-				BusName:       "Q59",
-				Distance:      "1 stop away",
-				ArrivalTime:   time.Now(),
-				DepartureTime: time.Now(),
+		{
+			testName:        "Gets Expected Response (1 Bus Time) When Arrival Time is 0 Mins Away",
+			mockBusStopCode: "503471",
+			mockResponse: []BusTime{
+				{
+					Stop:          "503471",
+					BusName:       "Q59",
+					Distance:      "1 stop away",
+					ArrivalTime:   time.Now(),
+					DepartureTime: time.Now(),
+				},
 			},
-		}, nil).Times(1)
+			mockError:                nil,
+			expectedOutputSpeechText: "There is one bus coming, the Q59 which is 1 stop away.",
+			alexaRequest:             AlexaRequest{},
+			alexaContext:             nil,
+		},
 
-		busHandler := NewAlexaBusLocationHandler(mockBusService)
-		resp, err := busHandler.GetBusTimes(nil, AlexaRequest{})
-		if err != nil {
-			t.Errorf("Did not expect an error, got %v", err)
-		}
-
-		expectedOutputSpeechText := "There is one bus coming, the Q59 which is 1 stop away."
-		actualOutputSpeechText := resp.Response.OutputSpeech.Text
-		if actualOutputSpeechText != expectedOutputSpeechText {
-			t.Errorf("Expected %v, got: %v", expectedOutputSpeechText, actualOutputSpeechText)
-		}
-	})
-
-	t.Run("Test Gets Expected Response (More Than One Bus Time) When Arrival Time is 0 Mins Away", func(t *testing.T) {
-		mockCtrl := gomock.NewController(t)
-		defer mockCtrl.Finish()
-		mockBusService := NewMockBusLocationService(mockCtrl)
-		mockBusService.EXPECT().GetBusTimesByStopCode("503471").Return([]BusTime{
-			{
-				Stop:          "503471",
-				BusName:       "Q59",
-				Distance:      "1 stop away",
-				ArrivalTime:   time.Now(),
-				DepartureTime: time.Now(),
+		{
+			testName:        "Gets Expected Response (More Than One Bus Time) When Arrival Time is 0 Mins Away",
+			mockBusStopCode: "503471",
+			mockResponse: []BusTime{
+				{
+					Stop:          "503471",
+					BusName:       "Q59",
+					Distance:      "1 stop away",
+					ArrivalTime:   time.Now(),
+					DepartureTime: time.Now(),
+				},
+				{
+					Stop:          "503471",
+					BusName:       "Q58",
+					Distance:      "1.3 miles away",
+					ArrivalTime:   time.Now(),
+					DepartureTime: time.Now(),
+				},
+				{
+					Stop:          "503471",
+					BusName:       "Q58",
+					Distance:      "1.9 miles away",
+					ArrivalTime:   time.Now(),
+					DepartureTime: time.Now(),
+				},
 			},
-			{
-				Stop:          "503471",
-				BusName:       "Q58",
-				Distance:      "1.3 miles away",
-				ArrivalTime:   time.Now(),
-				DepartureTime: time.Now(),
+			mockError:                nil,
+			expectedOutputSpeechText: "There are 3 buses heading toward the stop, the Q59 which is 1 stop away, the Q58 which is 1.3 miles away, the Q58 which is 1.9 miles away.",
+			alexaRequest:             AlexaRequest{},
+			alexaContext:             nil,
+		},
+
+		{
+			testName:        "Gets Expected Response (1 Bus Time) When Arrival Time is > 0 Mins Away",
+			mockBusStopCode: "503471",
+			mockResponse: []BusTime{
+				{
+					Stop:          "503471",
+					BusName:       "Q59",
+					Distance:      "1 stop away",
+					ArrivalTime:   time.Now().Local().Add(time.Duration(120) * time.Minute),
+					DepartureTime: time.Now().Local().Add(time.Duration(120) * time.Minute),
+					MinsAway:      120,
+				},
 			},
-			{
-				Stop:          "503471",
-				BusName:       "Q58",
-				Distance:      "1.9 miles away",
-				ArrivalTime:   time.Now(),
-				DepartureTime: time.Now(),
+			mockError:                nil,
+			expectedOutputSpeechText: "There is one bus coming, the Q59 which is 120 minutes away.",
+			alexaRequest:             AlexaRequest{},
+			alexaContext:             nil,
+		},
+
+		{
+			testName:        "Gets Expected Response (1 Bus Time) When Arrival Time is > 0 Mins Away",
+			mockBusStopCode: "503471",
+			mockResponse: []BusTime{
+				{
+					Stop:          "503471",
+					BusName:       "Q59",
+					Distance:      "1 stop away",
+					ArrivalTime:   time.Now().Local().Add(time.Duration(7) * time.Minute),
+					DepartureTime: time.Now().Local().Add(time.Duration(7) * time.Minute),
+					MinsAway:      7,
+				},
+				{
+					Stop:          "503471",
+					BusName:       "Q58",
+					Distance:      "1.3 miles away",
+					ArrivalTime:   time.Now().Local().Add(time.Duration(10) * time.Minute),
+					DepartureTime: time.Now().Local().Add(time.Duration(10) * time.Minute),
+					MinsAway:      10,
+				},
+				{
+					Stop:          "503471",
+					BusName:       "Q58",
+					Distance:      "1.9 miles away",
+					ArrivalTime:   time.Now().Local().Add(time.Duration(43) * time.Minute),
+					DepartureTime: time.Now().Local().Add(time.Duration(43) * time.Minute),
+					MinsAway:      43,
+				},
 			},
-		}, nil).Times(1)
+			mockError:                nil,
+			expectedOutputSpeechText: "There are 3 buses heading toward the stop, the Q59 which is 7 minutes away, the Q58 which is 10 minutes away, the Q58 which is 43 minutes away.",
+			alexaRequest:             AlexaRequest{},
+			alexaContext:             nil,
+		},
+	}
 
-		busHandler := NewAlexaBusLocationHandler(mockBusService)
-		resp, err := busHandler.GetBusTimes(nil, AlexaRequest{})
-		if err != nil {
-			t.Errorf("Did not expect an error, got %v", err)
-		}
+	for _, test := range testTable {
+		t.Run(test.testName, func(t *testing.T) {
+			mockCtrl := gomock.NewController(t)
+			defer mockCtrl.Finish()
+			mockBusService := NewMockBusLocationService(mockCtrl)
+			mockBusService.EXPECT().GetBusTimesByStopCode(test.mockBusStopCode).Return(
+				test.mockResponse,
+				test.mockError,
+			).Times(1)
 
-		expectedOutputSpeechText := "There are 3 buses heading toward the stop, the Q59 which is 1 stop away, the Q58 which is 1.3 miles away, the Q58 which is 1.9 miles away."
-		actualOutputSpeechText := resp.Response.OutputSpeech.Text
-		if actualOutputSpeechText != expectedOutputSpeechText {
-			t.Errorf("Expected %v, got: %v", expectedOutputSpeechText, actualOutputSpeechText)
-		}
-	})
+			busHandler := NewAlexaBusLocationHandler(mockBusService)
+			resp, err := busHandler.GetBusTimes(test.alexaContext, test.alexaRequest)
+			if err != nil {
+				t.Errorf("Did not expect an error, got %v", err)
+				t.FailNow()
+			}
 
-	t.Run("Test Gets Expected Response (1 Bus Time) When Arrival Time is > 0 Mins Away", func(t *testing.T) {
-		mockCtrl := gomock.NewController(t)
-		defer mockCtrl.Finish()
-		mockBusService := NewMockBusLocationService(mockCtrl)
-		mockBusService.EXPECT().GetBusTimesByStopCode("503471").Return([]BusTime{
-			{
-				Stop:          "503471",
-				BusName:       "Q59",
-				Distance:      "1 stop away",
-				ArrivalTime:   time.Now().Local().Add(time.Duration(120) * time.Minute),
-				DepartureTime: time.Now().Local().Add(time.Duration(120) * time.Minute),
-				MinsAway:      120,
-			},
-		}, nil).Times(1)
+			actualOutputSpeechText := resp.Response.OutputSpeech.Text
+			if actualOutputSpeechText != test.expectedOutputSpeechText {
+				t.Errorf("Expected %v, got: %v", test.expectedOutputSpeechText, actualOutputSpeechText)
+			}
+		})
 
-		busHandler := NewAlexaBusLocationHandler(mockBusService)
-		resp, err := busHandler.GetBusTimes(nil, AlexaRequest{})
-		if err != nil {
-			t.Errorf("Did not expect an error, got %v", err)
-		}
-
-		expectedOutputSpeechText := "There is one bus coming, the Q59 which is 120 minutes away."
-		actualOutputSpeechText := resp.Response.OutputSpeech.Text
-		if actualOutputSpeechText != expectedOutputSpeechText {
-			t.Errorf("Expected %v, got: %v", expectedOutputSpeechText, actualOutputSpeechText)
-		}
-	})
-
-	t.Run("Test Gets Expected Response (More Than One Bus Time) When Arrival Time is > 0 Mins Away", func(t *testing.T) {
-		mockCtrl := gomock.NewController(t)
-		defer mockCtrl.Finish()
-		mockBusService := NewMockBusLocationService(mockCtrl)
-		mockBusService.EXPECT().GetBusTimesByStopCode("503471").Return([]BusTime{
-			{
-				Stop:          "503471",
-				BusName:       "Q59",
-				Distance:      "1 stop away",
-				ArrivalTime:   time.Now().Local().Add(time.Duration(7) * time.Minute),
-				DepartureTime: time.Now().Local().Add(time.Duration(7) * time.Minute),
-				MinsAway:      7,
-			},
-			{
-				Stop:          "503471",
-				BusName:       "Q58",
-				Distance:      "1.3 miles away",
-				ArrivalTime:   time.Now().Local().Add(time.Duration(10) * time.Minute),
-				DepartureTime: time.Now().Local().Add(time.Duration(10) * time.Minute),
-				MinsAway:      10,
-			},
-			{
-				Stop:          "503471",
-				BusName:       "Q58",
-				Distance:      "1.9 miles away",
-				ArrivalTime:   time.Now().Local().Add(time.Duration(43) * time.Minute),
-				DepartureTime: time.Now().Local().Add(time.Duration(43) * time.Minute),
-				MinsAway:      43,
-			},
-		}, nil).Times(1)
-
-		busHandler := NewAlexaBusLocationHandler(mockBusService)
-		resp, err := busHandler.GetBusTimes(nil, AlexaRequest{})
-		if err != nil {
-			t.Errorf("Did not expect an error, got %v", err)
-		}
-
-		expectedOutputSpeechText := "There are 3 buses heading toward the stop, the Q59 which is 7 minutes away, the Q58 which is 10 minutes away, the Q58 which is 43 minutes away."
-		actualOutputSpeechText := resp.Response.OutputSpeech.Text
-		if actualOutputSpeechText != expectedOutputSpeechText {
-			t.Errorf("Expected %v, got: %v", expectedOutputSpeechText, actualOutputSpeechText)
-		}
-	})
+	}
 }
