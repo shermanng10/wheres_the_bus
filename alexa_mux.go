@@ -2,10 +2,7 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
-
-	"github.com/davecgh/go-spew/spew" // Deep pretty printer for easier debugging of nested structs
 )
 
 type Mux interface {
@@ -27,9 +24,9 @@ type AlexaMux struct {
 }
 
 func (a *AlexaMux) Handle(ctx context.Context, r AlexaRequest) (AlexaTextResponse, error) {
-	fmt.Println("-------- Alexa Request Parameters: --------")
-	spew.Dump(r)
-	fmt.Println("-------- Done. --------")
+	log.Println("-------- Alexa Request Parameters: --------")
+	log.Printf("AlexaRequest: %+v\n", r)
+	log.Println("-------- Done. --------")
 
 	var resp AlexaTextResponse
 	var err error

@@ -1,6 +1,8 @@
 package main
 
 import (
+	"io/ioutil"
+	"log"
 	"testing"
 
 	"github.com/golang/mock/gomock"
@@ -18,6 +20,7 @@ func makeTestIntentRequest(intent string) AlexaRequest {
 
 func TestAlexaMuxHandle(t *testing.T) {
 	t.Run("Handle wheres_the_bus intent calls bus handler with proper response", func(t *testing.T) {
+		log.SetOutput(ioutil.Discard)
 		req := makeTestIntentRequest("wheres_the_bus")
 
 		mockCtrl := gomock.NewController(t)
