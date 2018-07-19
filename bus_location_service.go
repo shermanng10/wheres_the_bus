@@ -2,6 +2,7 @@ package main
 
 import (
 	"io/ioutil"
+	"math"
 	"net/http"
 	"net/url"
 	"os"
@@ -40,6 +41,7 @@ type BusTime struct {
 	Stop          string
 	ArrivalTime   time.Time
 	DepartureTime time.Time
+	MinsAway      float64
 	Distance      string
 	BusName       string
 }
@@ -94,14 +96,29 @@ func (api *MTABusStopMonitoringAPI) responseToBusTimes(resp []byte, stopCode str
 	stops := gjson.GetBytes(resp, stopsVisitJsonPath)
 	for _, stop := range stops.Array() {
 		stopJson := stop.String()
+		arrivalTime := gjson.Get(stopJson, arrivalTimeJsonPath).Time()
+
 		busTimes = append(busTimes, BusTime{
 			Stop:          stopCode,
-			ArrivalTime:   gjson.Get(stopJson, arrivalTimeJsonPath).Time(),
+			ArrivalTime:   arrivalTime,
 			DepartureTime: gjson.Get(stopJson, departureTimeJsonPath).Time(),
 			Distance:      gjson.Get(stopJson, distanceJsonPath).String(),
 			BusName:       gjson.Get(stopJson, busNameJsonPath).String(),
+			MinsAway:      api.calculateMinsAway(arrivalTime),
 		})
 	}
 
 	return busTimes
+}
+
+func (api *MTABusStopMonitoringAPI) calculateMinsAway(arrivalTime time.Time) float64 {
+	now := time.Now()
+	if arrivalTime.IsZero() || now.After(arrivalTime) {
+		// Return a zero valued time away if the arrival time is unknown or the current time is after the arrival so
+		// that in the response, we can choose if we want to include the time based on if it is accurate.
+		return 0
+	} else {
+		duration := time.Until(arrivalTime)
+		return math.Ceil(duration.Minutes())
+	}
 }

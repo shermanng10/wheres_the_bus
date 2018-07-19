@@ -35,7 +35,6 @@ func TestGetBusTimesByStopCode(t *testing.T) {
 			t.Logf("Did not expect an error %v", err)
 			t.FailNow()
 		}
-
 		expectedNumberOfBusTimes := 3
 		if len(busTimes) != expectedNumberOfBusTimes {
 			t.Errorf("Expected %v bus times got: %v", expectedNumberOfBusTimes, len(busTimes))
