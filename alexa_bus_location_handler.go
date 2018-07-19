@@ -25,10 +25,17 @@ type AlexaBusLocationHandler struct {
 }
 
 func (h *AlexaBusLocationHandler) GetBusTimes(ctx context.Context, r AlexaRequest) (AlexaTextResponse, error) {
-	stopCode := "503471" // Hard coded to my stop for now.
+	var stopCode string
+	slot, _ := r.Request.Intent.Slots["stopCode"]
+	if slot.Value != "" {
+		stopCode = slot.Value
+	} else {
+		stopCode = "503471" // Hard coded to my stop for now will be dynamic to saved preference in future.
+	}
+
 	busTimes, err := h.busService.GetBusTimesByStopCode(stopCode)
 	if err != nil {
-		return NewAlexaTextResponse("Something went wrong with your request."), err
+		return AlexaTextResponse{}, err
 	}
 
 	return h.makeBusTimesResponse(busTimes), nil

@@ -19,10 +19,10 @@ func makeTestIntentRequest(intent string) AlexaRequest {
 }
 
 func TestAlexaMuxHandle(t *testing.T) {
-	t.Run("Handle wheres_the_bus intent calls bus handler with proper response", func(t *testing.T) {
-		log.SetOutput(ioutil.Discard)
-		req := makeTestIntentRequest("wheres_the_bus")
+	log.SetOutput(ioutil.Discard)
 
+	t.Run("Handle wheres_the_bus intent calls bus handler with proper response", func(t *testing.T) {
+		req := makeTestIntentRequest("wheres_the_bus")
 		mockCtrl := gomock.NewController(t)
 		defer mockCtrl.Finish()
 		mockedResp := NewAlexaTextResponse("There is one bus coming, the Q59 which is 1 stop away.")

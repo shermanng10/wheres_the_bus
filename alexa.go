@@ -8,6 +8,10 @@ type AlexaRequest struct {
 		Intent struct {
 			Name               string `json:"name"`
 			ConfirmationStatus string `json:"confirmationstatus"`
+			Slots              map[string]struct {
+				Name  string `json:"name"`
+				Value string `json:"value"`
+			} `json:"slots"`
 		} `json:"intent"`
 	} `json:"request"`
 }
