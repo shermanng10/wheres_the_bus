@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"testing"
 	"time"
 
@@ -17,6 +18,7 @@ func TestBusLocationHandlerGetBusTimes(t *testing.T) {
 		expectedOutputSpeechText string
 		alexaRequest             AlexaRequest
 		alexaContext             context.Context
+		err                      error
 	}{
 
 		{
@@ -27,6 +29,7 @@ func TestBusLocationHandlerGetBusTimes(t *testing.T) {
 			expectedOutputSpeechText: "There are no buses arriving at the stop.",
 			alexaRequest:             AlexaRequest{},
 			alexaContext:             nil,
+			err:                      nil,
 		},
 
 		{
@@ -45,6 +48,7 @@ func TestBusLocationHandlerGetBusTimes(t *testing.T) {
 			expectedOutputSpeechText: "There is one bus coming, the Q59 which is 1 stop away.",
 			alexaRequest:             AlexaRequest{},
 			alexaContext:             nil,
+			err:                      nil,
 		},
 
 		{
@@ -77,6 +81,7 @@ func TestBusLocationHandlerGetBusTimes(t *testing.T) {
 			expectedOutputSpeechText: "There are 3 buses heading toward the stop, the Q59 which is 1 stop away, the Q58 which is 1.3 miles away, the Q58 which is 1.9 miles away.",
 			alexaRequest:             AlexaRequest{},
 			alexaContext:             nil,
+			err:                      nil,
 		},
 
 		{
@@ -96,10 +101,11 @@ func TestBusLocationHandlerGetBusTimes(t *testing.T) {
 			expectedOutputSpeechText: "There is one bus coming, the Q59 which is 120 minutes away.",
 			alexaRequest:             AlexaRequest{},
 			alexaContext:             nil,
+			err:                      nil,
 		},
 
 		{
-			testName:        "Gets Expected Response (1 Bus Time) When Arrival Time is > 0 Mins Away",
+			testName:        "Gets Expected Response (More Than One Bus Time) When Arrival Time is > 0 Mins Away",
 			mockBusStopCode: "503471",
 			mockResponse: []BusTime{
 				{
@@ -131,6 +137,18 @@ func TestBusLocationHandlerGetBusTimes(t *testing.T) {
 			expectedOutputSpeechText: "There are 3 buses heading toward the stop, the Q59 which is 7 minutes away, the Q58 which is 10 minutes away, the Q58 which is 43 minutes away.",
 			alexaRequest:             AlexaRequest{},
 			alexaContext:             nil,
+			err:                      nil,
+		},
+
+		{
+			testName:                 "Gets Expected Error",
+			mockBusStopCode:          "503471",
+			mockResponse:             []BusTime{},
+			mockError:                errors.New("Unexpected error"),
+			expectedOutputSpeechText: "",
+			alexaRequest:             AlexaRequest{},
+			alexaContext:             nil,
+			err:                      errors.New("Unexpected error"),
 		},
 	}
 
@@ -146,9 +164,8 @@ func TestBusLocationHandlerGetBusTimes(t *testing.T) {
 
 			busHandler := NewAlexaBusLocationHandler(mockBusService)
 			resp, err := busHandler.GetBusTimes(test.alexaContext, test.alexaRequest)
-			if err != nil {
-				t.Errorf("Did not expect an error, got %v", err)
-				t.FailNow()
+			if err != nil && test.err != nil && err.Error() != test.err.Error() {
+				t.Errorf("Expected %v error, got %v", test.err, err)
 			}
 
 			actualOutputSpeechText := resp.Response.OutputSpeech.Text
