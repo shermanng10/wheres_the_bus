@@ -8,3 +8,5 @@ clean:
 
 build:
 	GOOS=linux GOARCH=amd64 go build -o where_da_bus ./
+	zip ./where_da_bus.zip ./where_da_bus
+	mv where_da_bus.zip ~/Desktop
