@@ -18,13 +18,13 @@ First make sure that you have dep installed.
 
 For Mac:
 ```bash
-	$ brew install dep
-	$ brew upgrade dep
+$ brew install dep
+$ brew upgrade dep
 ```
 
 Then just install the dependencies
 ```bash
-	$ dep ensure
+$ dep ensure
 ```
 
 ### Hosting it yourself
@@ -32,7 +32,7 @@ Then just install the dependencies
 Since I haven't actually deployed this application for public use on Amazon yet, you'd need to compile, then package the binary and zip it.
 
 ```bash
-	$ make build
+$ make build
 ```
 
 Then create a Lambda function and upload it. Once that's done you create an Alexa skill and hook it up to your Lambda function (you can even specify your own invocations as long as the intent command is wheres_the_bus which has an optional "slot" called stopCode).
