@@ -9,8 +9,8 @@ type Mux interface {
 	Handle(context.Context, AlexaRequest) (AlexaTextResponse, error)
 }
 
-func AlexaMuxFactory() *AlexaMux {
-	return NewAlexaMux(AlexaBusLocationHandlerFactory())
+func InitAlexaMux() *AlexaMux {
+	return NewAlexaMux(InitAlexaBusLocationHandler())
 }
 
 func NewAlexaMux(blh BusLocationHandler) *AlexaMux {

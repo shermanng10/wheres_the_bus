@@ -10,7 +10,7 @@ type BusLocationHandler interface {
 	GetBusTimes(context.Context, AlexaRequest) (AlexaTextResponse, error)
 }
 
-func AlexaBusLocationHandlerFactory() *AlexaBusLocationHandler {
+func InitAlexaBusLocationHandler() *AlexaBusLocationHandler {
 	return NewAlexaBusLocationHandler(MTAStopMonitoringAPIFactory())
 }
 

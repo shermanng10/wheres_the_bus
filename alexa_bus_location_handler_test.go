@@ -12,7 +12,7 @@ import (
 func TestBusLocationHandlerGetBusTimes(t *testing.T) {
 	testTable := []struct {
 		testName                 string
-		mockBusStopCode          string
+		expectedMockStopCode     string
 		mockResponse             []BusTime
 		mockError                error
 		expectedOutputSpeechText string
@@ -23,7 +23,7 @@ func TestBusLocationHandlerGetBusTimes(t *testing.T) {
 
 		{
 			testName:                 "Gets Expected Response (No Bus Times)",
-			mockBusStopCode:          "503471",
+			expectedMockStopCode:     "503471",
 			mockResponse:             []BusTime{},
 			mockError:                nil,
 			expectedOutputSpeechText: "There are no buses arriving at the stop.",
@@ -33,8 +33,8 @@ func TestBusLocationHandlerGetBusTimes(t *testing.T) {
 		},
 
 		{
-			testName:        "Gets Expected Response (1 Bus Time) When Arrival Time is 0 Mins Away",
-			mockBusStopCode: "503471",
+			testName:             "Gets Expected Response (1 Bus Time) When Arrival Time is 0 Mins Away",
+			expectedMockStopCode: "503471",
 			mockResponse: []BusTime{
 				{
 					Stop:          "503471",
@@ -52,8 +52,8 @@ func TestBusLocationHandlerGetBusTimes(t *testing.T) {
 		},
 
 		{
-			testName:        "Gets Expected Response (More Than One Bus Time) When Arrival Time is 0 Mins Away",
-			mockBusStopCode: "503471",
+			testName:             "Gets Expected Response (More Than One Bus Time) When Arrival Time is 0 Mins Away",
+			expectedMockStopCode: "503471",
 			mockResponse: []BusTime{
 				{
 					Stop:          "503471",
@@ -85,8 +85,8 @@ func TestBusLocationHandlerGetBusTimes(t *testing.T) {
 		},
 
 		{
-			testName:        "Gets Expected Response (1 Bus Time) When Arrival Time is > 0 Mins Away",
-			mockBusStopCode: "503471",
+			testName:             "Gets Expected Response (1 Bus Time) When Arrival Time is > 0 Mins Away",
+			expectedMockStopCode: "503471",
 			mockResponse: []BusTime{
 				{
 					Stop:          "503471",
@@ -105,8 +105,8 @@ func TestBusLocationHandlerGetBusTimes(t *testing.T) {
 		},
 
 		{
-			testName:        "Gets Expected Response (More Than One Bus Time) When Arrival Time is > 0 Mins Away",
-			mockBusStopCode: "503471",
+			testName:             "Gets Expected Response (More Than One Bus Time) When Arrival Time is > 0 Mins Away",
+			expectedMockStopCode: "503471",
 			mockResponse: []BusTime{
 				{
 					Stop:          "503471",
@@ -142,7 +142,7 @@ func TestBusLocationHandlerGetBusTimes(t *testing.T) {
 
 		{
 			testName:                 "Gets Expected Error",
-			mockBusStopCode:          "503471",
+			expectedMockStopCode:     "503471",
 			mockResponse:             []BusTime{},
 			mockError:                errors.New("Unexpected error"),
 			expectedOutputSpeechText: "",
@@ -157,7 +157,7 @@ func TestBusLocationHandlerGetBusTimes(t *testing.T) {
 			mockCtrl := gomock.NewController(t)
 			defer mockCtrl.Finish()
 			mockBusService := NewMockBusLocationService(mockCtrl)
-			mockBusService.EXPECT().GetBusTimesByStopCode(test.mockBusStopCode).Return(
+			mockBusService.EXPECT().GetBusTimesByStopCode(test.expectedMockStopCode).Return(
 				test.mockResponse,
 				test.mockError,
 			).Times(1)

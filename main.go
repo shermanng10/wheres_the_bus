@@ -5,6 +5,6 @@ import (
 )
 
 func main() {
-	mux := AlexaMuxFactory()
+	mux := InitAlexaMux()
 	lambda.Start(mux.Handle)
 }
