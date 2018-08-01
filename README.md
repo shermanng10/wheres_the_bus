@@ -8,7 +8,7 @@ There are phone apps that you can type a bus stop code in and get the same data,
 
 ### TODO's
 
-- Actually deploy the application to Amazon so that other people can use it.
+- Waiting on approval from Amazon so that other people can use it.
 
 ### Installing dependencies for local development
 
