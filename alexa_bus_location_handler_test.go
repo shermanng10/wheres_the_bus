@@ -9,7 +9,7 @@ import (
 	"github.com/golang/mock/gomock"
 )
 
-func newFakeAlexaRequest(userId string, stopCode string) AlexaRequest {
+func newFakeAlexaRequest(userId string, stopCode string, stopPrefName string) AlexaRequest {
 	ar := AlexaRequest{}
 	ar.Session.User.UserId = userId
 
@@ -24,6 +24,14 @@ func newFakeAlexaRequest(userId string, stopCode string) AlexaRequest {
 	}{
 		Name:  "fakeName",
 		Value: stopCode,
+	}
+
+	ar.Request.Intent.Slots["stopPrefName"] = struct {
+		Name  string `json:"name"`
+		Value string `json:"value"`
+	}{
+		Name:  "fakeName",
+		Value: stopPrefName,
 	}
 
 	return ar
@@ -46,7 +54,7 @@ func TestBusLocationHandlerGetBusTimes(t *testing.T) {
 	}{
 
 		{
-			testName:                               "Gets Expected Response (No Bus Times) when no stop code passed in request",
+			testName:                               "Gets Expected Response (No Bus Times) when no stop pref name passed in request",
 			expectedMockBusServiceCode:             "503471",
 			mockBusServiceResponse:                 []BusTime{},
 			mockBusServiceError:                    nil,
@@ -55,32 +63,32 @@ func TestBusLocationHandlerGetBusTimes(t *testing.T) {
 			mockBusStopPreferenceStoreResponse:     "503471",
 			mockBusStopPreferenceStoreError:        nil,
 			expectedOutputSpeechText:               "There are no buses arriving at the stop.",
-			alexaRequest:                           newFakeAlexaRequest("amzn1.ask.account.amzn1.ask.account.FAKEACCOUNT", ""),
+			alexaRequest:                           newFakeAlexaRequest("amzn1.ask.account.amzn1.ask.account.FAKEACCOUNT", "", ""),
 			alexaContext:                           nil,
 			err:                                    nil,
 		},
 
 		{
-			testName:                               "Gets Expected Response (No Bus Times) when stop code passed in request",
+			testName:                               "Gets Expected Response (No Bus Times) when stop pref name passed in request",
 			expectedMockBusServiceCode:             "503471",
 			mockBusServiceResponse:                 []BusTime{},
 			mockBusServiceError:                    nil,
 			expectedBusStopPreferenceStoreUserId:   "amzn1.ask.account.amzn1.ask.account.FAKEACCOUNT",
-			expectedBusStopPreferenceStorePrefName: "",
+			expectedBusStopPreferenceStorePrefName: "queens",
 			mockBusStopPreferenceStoreResponse:     "503471",
 			mockBusStopPreferenceStoreError:        nil,
 			expectedOutputSpeechText:               "There are no buses arriving at the stop.",
-			alexaRequest:                           newFakeAlexaRequest("amzn1.ask.account.amzn1.ask.account.FAKEACCOUNT", "503471"),
+			alexaRequest:                           newFakeAlexaRequest("amzn1.ask.account.amzn1.ask.account.FAKEACCOUNT", "", "queens"),
 			alexaContext:                           nil,
 			err:                                    nil,
 		},
 
 		{
 			testName:                   "Gets Expected Response (1 Bus Time) When Arrival Time is 0 Mins Away",
-			expectedMockBusServiceCode: "503471",
+			expectedMockBusServiceCode: "503472",
 			mockBusServiceResponse: []BusTime{
 				{
-					Stop:          "503471",
+					Stop:          "503472",
 					BusName:       "Q59",
 					Distance:      "1 stop away",
 					ArrivalTime:   time.Now(),
@@ -89,11 +97,11 @@ func TestBusLocationHandlerGetBusTimes(t *testing.T) {
 			},
 			mockBusServiceError:                    nil,
 			expectedBusStopPreferenceStoreUserId:   "amzn1.ask.account.amzn1.ask.account.FAKEACCOUNT",
-			expectedBusStopPreferenceStorePrefName: "default",
-			mockBusStopPreferenceStoreResponse:     "",
+			expectedBusStopPreferenceStorePrefName: "brooklyn",
+			mockBusStopPreferenceStoreResponse:     "503472",
 			mockBusStopPreferenceStoreError:        nil,
 			expectedOutputSpeechText:               "There is one bus coming, the Q59 which is 1 stop away.",
-			alexaRequest:                           newFakeAlexaRequest("amzn1.ask.account.amzn1.ask.account.FAKEACCOUNT", "503471"),
+			alexaRequest:                           newFakeAlexaRequest("amzn1.ask.account.amzn1.ask.account.FAKEACCOUNT", "", "brooklyn"),
 			alexaContext:                           nil,
 			err:                                    nil,
 		},
@@ -126,11 +134,11 @@ func TestBusLocationHandlerGetBusTimes(t *testing.T) {
 			},
 			mockBusServiceError:                    nil,
 			expectedBusStopPreferenceStoreUserId:   "amzn1.ask.account.amzn1.ask.account.FAKEACCOUNT",
-			expectedBusStopPreferenceStorePrefName: "default",
-			mockBusStopPreferenceStoreResponse:     "",
+			expectedBusStopPreferenceStorePrefName: "manhattan",
+			mockBusStopPreferenceStoreResponse:     "503471",
 			mockBusStopPreferenceStoreError:        nil,
 			expectedOutputSpeechText:               "There are 3 buses heading toward the stop, the Q59 which is 1 stop away, the Q58 which is 1.3 miles away, the Q58 which is 1.9 miles away.",
-			alexaRequest:                           newFakeAlexaRequest("amzn1.ask.account.amzn1.ask.account.FAKEACCOUNT", "503471"),
+			alexaRequest:                           newFakeAlexaRequest("amzn1.ask.account.amzn1.ask.account.FAKEACCOUNT", "", "manhattan"),
 			alexaContext:                           nil,
 			err:                                    nil,
 		},
@@ -151,10 +159,10 @@ func TestBusLocationHandlerGetBusTimes(t *testing.T) {
 			mockBusServiceError:                    nil,
 			expectedBusStopPreferenceStoreUserId:   "amzn1.ask.account.amzn1.ask.account.FAKEACCOUNT",
 			expectedBusStopPreferenceStorePrefName: "default",
-			mockBusStopPreferenceStoreResponse:     "",
+			mockBusStopPreferenceStoreResponse:     "503471",
 			mockBusStopPreferenceStoreError:        nil,
 			expectedOutputSpeechText:               "There is one bus coming, the Q59 which is 120 minutes away.",
-			alexaRequest:                           newFakeAlexaRequest("amzn1.ask.account.amzn1.ask.account.FAKEACCOUNT", "503471"),
+			alexaRequest:                           newFakeAlexaRequest("amzn1.ask.account.amzn1.ask.account.FAKEACCOUNT", "503471", ""),
 			alexaContext:                           nil,
 			err:                                    nil,
 		},
@@ -191,10 +199,10 @@ func TestBusLocationHandlerGetBusTimes(t *testing.T) {
 			mockBusServiceError:                    nil,
 			expectedBusStopPreferenceStoreUserId:   "amzn1.ask.account.amzn1.ask.account.FAKEACCOUNT",
 			expectedBusStopPreferenceStorePrefName: "default",
-			mockBusStopPreferenceStoreResponse:     "",
+			mockBusStopPreferenceStoreResponse:     "503471",
 			mockBusStopPreferenceStoreError:        nil,
 			expectedOutputSpeechText:               "There are 3 buses heading toward the stop, the Q59 which is 7 minutes away, the Q58 which is 10 minutes away, the Q58 which is 43 minutes away.",
-			alexaRequest:                           newFakeAlexaRequest("amzn1.ask.account.amzn1.ask.account.FAKEACCOUNT", "503471"),
+			alexaRequest:                           newFakeAlexaRequest("amzn1.ask.account.amzn1.ask.account.FAKEACCOUNT", "503471", ""),
 			alexaContext:                           nil,
 			err:                                    nil,
 		},
@@ -206,10 +214,10 @@ func TestBusLocationHandlerGetBusTimes(t *testing.T) {
 			mockBusServiceError:                    errors.New("Unexpected error."),
 			expectedBusStopPreferenceStoreUserId:   "amzn1.ask.account.amzn1.ask.account.FAKEACCOUNT",
 			expectedBusStopPreferenceStorePrefName: "default",
-			mockBusStopPreferenceStoreResponse:     "",
+			mockBusStopPreferenceStoreResponse:     "503471",
 			mockBusStopPreferenceStoreError:        nil,
 			expectedOutputSpeechText:               "",
-			alexaRequest:                           newFakeAlexaRequest("amzn1.ask.account.amzn1.ask.account.FAKEACCOUNT", "503471"),
+			alexaRequest:                           newFakeAlexaRequest("amzn1.ask.account.amzn1.ask.account.FAKEACCOUNT", "503471", ""),
 			alexaContext:                           nil,
 			err:                                    errors.New("Unexpected error."),
 		},

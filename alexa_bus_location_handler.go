@@ -27,17 +27,19 @@ type AlexaBusLocationHandler struct {
 }
 
 func (h *AlexaBusLocationHandler) GetBusTimes(ctx context.Context, r AlexaRequest) (AlexaTextResponse, error) {
-	var stopCode string
-	stopCodeSlot, _ := r.Request.Intent.Slots["stopCode"]
+	var prefName string
+	var err error
 
-	if stopCodeSlot.Value != "" {
-		stopCode = stopCodeSlot.Value
+	stopPrefNameSlot, _ := r.Request.Intent.Slots["stopPrefName"]
+
+	if stopPrefNameSlot.Value != "" {
+		prefName = stopPrefNameSlot.Value
 	} else {
-		var err error
-		stopCode, err = h.preferenceStore.GetStopCodePreference(r.Session.User.UserId, "default")
-		if err != nil {
-			return AlexaTextResponse{}, err
-		}
+		prefName = "default"
+	}
+	stopCode, err := h.preferenceStore.GetStopCodePreference(r.Session.User.UserId, prefName)
+	if err != nil {
+		return AlexaTextResponse{}, err
 	}
 
 	busTimes, err := h.busService.GetBusTimesByStopCode(stopCode)

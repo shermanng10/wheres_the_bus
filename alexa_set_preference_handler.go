@@ -34,11 +34,17 @@ func (h *AlexaSetPreferenceHandler) SetBusPreference(c context.Context, r AlexaR
 		return AlexaTextResponse{}, errors.New("Something went wrong, user id not given.")
 	}
 
+	stopPrefNameSlot, _ := r.Request.Intent.Slots["stopPrefName"]
+	stopPrefName := stopPrefNameSlot.Value
+	if stopPrefNameSlot.Value == "" {
+		stopPrefName = "default"
+	}
+
 	stopCode := stopCodeSlot.Value
-	err := h.preferenceStore.SetStopCodePreference(userId, "default", stopCode)
+	err := h.preferenceStore.SetStopCodePreference(userId, stopPrefName, stopCode)
 	if err != nil {
 		return AlexaTextResponse{}, err
 	}
 
-	return NewAlexaTextResponse(fmt.Sprintf("Saved your default bus stop code to %v.", stopCode)), nil
+	return NewAlexaTextResponse(fmt.Sprintf("Saved %v as %v.", stopCode, stopPrefName)), nil
 }
