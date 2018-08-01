@@ -16,7 +16,16 @@ type BusLocationService interface {
 	GetBusTimesByStopCode(string) ([]BusTime, error)
 }
 
-func MTAStopMonitoringAPIFactory() *MTABusStopMonitoringAPI {
+type BusTime struct {
+	Stop          string
+	ArrivalTime   time.Time
+	DepartureTime time.Time
+	MinsAway      float64
+	Distance      string
+	BusName       string
+}
+
+func InitMTAStopMonitoringAPI() *MTABusStopMonitoringAPI {
 	const defaultTimeOut = time.Second * 15
 	defaultHttpClient := &http.Client{
 		Timeout: defaultTimeOut,
@@ -35,15 +44,6 @@ func NewMTAStopMonitoringAPI(httpClient *http.Client) *MTABusStopMonitoringAPI {
 type MTABusStopMonitoringAPI struct {
 	baseUrl    string
 	HttpClient *http.Client
-}
-
-type BusTime struct {
-	Stop          string
-	ArrivalTime   time.Time
-	DepartureTime time.Time
-	MinsAway      float64
-	Distance      string
-	BusName       string
 }
 
 func (api *MTABusStopMonitoringAPI) SetBaseUrl(url string) {

@@ -2,6 +2,11 @@ package main
 
 type AlexaRequest struct {
 	Version string `json:"version"`
+	Session struct {
+		User struct {
+			UserId string `json:"userId"`
+		} `json:"user"`
+	} `json:"session"`
 	Request struct {
 		Type   string `json:"type"`
 		Time   string `json:"timestamp"`

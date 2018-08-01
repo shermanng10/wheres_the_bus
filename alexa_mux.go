@@ -10,17 +10,19 @@ type Mux interface {
 }
 
 func InitAlexaMux() *AlexaMux {
-	return NewAlexaMux(InitAlexaBusLocationHandler())
+	return NewAlexaMux(InitAlexaBusLocationHandler(), InitAlexaSetPreferenceHandler())
 }
 
-func NewAlexaMux(blh BusLocationHandler) *AlexaMux {
+func NewAlexaMux(blh BusLocationHandler, sph SetPreferenceHandler) *AlexaMux {
 	return &AlexaMux{
-		busLocationHandler: blh,
+		busLocationHandler:   blh,
+		setPreferenceHandler: sph,
 	}
 }
 
 type AlexaMux struct {
-	busLocationHandler BusLocationHandler
+	busLocationHandler   BusLocationHandler
+	setPreferenceHandler SetPreferenceHandler
 }
 
 func (a *AlexaMux) Handle(ctx context.Context, r AlexaRequest) (AlexaTextResponse, error) {
@@ -34,6 +36,8 @@ func (a *AlexaMux) Handle(ctx context.Context, r AlexaRequest) (AlexaTextRespons
 	switch r.Request.Intent.Name {
 	case "wheres_the_bus":
 		resp, err = a.busLocationHandler.GetBusTimes(ctx, r)
+	case "save_bus_code":
+		resp, err = a.setPreferenceHandler.SetBusPreference(ctx, r)
 	case "AMAZON.HelpIntent":
 		resp = NewAlexaTextResponse("Just ask where the bus is.")
 	default:

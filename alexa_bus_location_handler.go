@@ -11,26 +11,33 @@ type BusLocationHandler interface {
 }
 
 func InitAlexaBusLocationHandler() *AlexaBusLocationHandler {
-	return NewAlexaBusLocationHandler(MTAStopMonitoringAPIFactory())
+	return NewAlexaBusLocationHandler(InitMTAStopMonitoringAPI(), InitDynamoBusStopPreferenceStore())
 }
 
-func NewAlexaBusLocationHandler(busService BusLocationService) *AlexaBusLocationHandler {
+func NewAlexaBusLocationHandler(busService BusLocationService, prefStore BusStopPreferenceStore) *AlexaBusLocationHandler {
 	return &AlexaBusLocationHandler{
-		busService: busService,
+		busService:      busService,
+		preferenceStore: prefStore,
 	}
 }
 
 type AlexaBusLocationHandler struct {
-	busService BusLocationService
+	busService      BusLocationService
+	preferenceStore BusStopPreferenceStore
 }
 
 func (h *AlexaBusLocationHandler) GetBusTimes(ctx context.Context, r AlexaRequest) (AlexaTextResponse, error) {
 	var stopCode string
-	slot, _ := r.Request.Intent.Slots["stopCode"]
-	if slot.Value != "" {
-		stopCode = slot.Value
+	stopCodeSlot, _ := r.Request.Intent.Slots["stopCode"]
+
+	if stopCodeSlot.Value != "" {
+		stopCode = stopCodeSlot.Value
 	} else {
-		stopCode = "503471" // Hard coded to my stop for now will be dynamic to saved preference in future.
+		var err error
+		stopCode, err = h.preferenceStore.GetStopCodePreference(r.Session.User.UserId, "default")
+		if err != nil {
+			return AlexaTextResponse{}, err
+		}
 	}
 
 	busTimes, err := h.busService.GetBusTimesByStopCode(stopCode)
